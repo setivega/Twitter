@@ -13,6 +13,7 @@ public class Tweet {
     public String createdAt;
     public User user;
 
+
     public static Tweet fromJSON(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
         tweet.body = jsonObject.getString("text");
