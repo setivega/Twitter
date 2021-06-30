@@ -56,11 +56,12 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         return tweets.size();
     }
 
-    // Pass in the context and lists of tweets
+    // Clean all elements of the recycler
+    public void clear() {
+        tweets.clear();
+        notifyDataSetChanged();
+    }
 
-    // For each row, inflate the layout
-
-    // Bind values based on the position of the element
 
     // Define a viewholder
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -70,6 +71,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         TextView tvScreenName;
         TextView tvBody;
         TextView tvCreatedAt;
+        ImageView ivMediaImage;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -79,6 +81,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvScreenName = itemView.findViewById(R.id.tvScreenName);
             tvBody = itemView.findViewById(R.id.tvBody);
             tvCreatedAt = itemView.findViewById(R.id.tvCreatedAt);
+            ivMediaImage = itemView.findViewById(R.id.ivMediaImage);
 
         }
 
@@ -91,8 +94,19 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             Glide.with(context).load(tweet.user.profileImageUrl)
                     .transform(new CenterCrop(), new RoundedCorners(100))
                     .into(ivProfileImage);
+            if (tweet.mediaUrl != null) {
+                ivMediaImage.setVisibility(View.VISIBLE);
+                Glide.with(context).load(tweet.mediaUrl)
+                        .transform(new CenterCrop(), new RoundedCorners(20))
+                        .into(ivMediaImage);
+            } else {
+                ivMediaImage.setVisibility(View.GONE);
+                Glide.with(context).clear(ivMediaImage);
+            }
 
+            Log.i("Entity", "Media Exists " + tweet.mediaUrl);
         }
+
     }
 
 }

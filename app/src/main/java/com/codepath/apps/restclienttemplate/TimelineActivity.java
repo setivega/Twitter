@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ public class TimelineActivity extends AppCompatActivity {
     private List<Tweet> tweets;
     private TweetsAdapter adapter;
     private FloatingActionButton btnCompose;
+    private SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,19 @@ public class TimelineActivity extends AppCompatActivity {
 
         populateHomeTimeline();
 
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchTimelineAsync(0);
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
         btnCompose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,10 +85,35 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
+    public void fetchTimelineAsync(int page) {
+        client.getHomeTimeline(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess: " + json.toString());
+                JSONArray jsonArray = json.jsonArray;
+                try {
+                    adapter.clear();
+                    tweets.addAll(Tweet.fromJSONArray(jsonArray));
+                    adapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    Log.e(TAG, "Json exception: ", e);
+                }
+                // Now we call setRefreshing(false) to signal refresh has finished
+                swipeContainer.setRefreshing(false);
+            }
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.i(TAG, "onFailure: " + response, throwable);
+            }
+        });
+    }
+
+    // Function to receive result from activity that we Intent to after calling startActivityForResult()
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // Checking if the request code is the one that is sent when a tweet is created
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             // Get tweet object
             Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
@@ -85,6 +125,7 @@ public class TimelineActivity extends AppCompatActivity {
         }
     }
 
+    // Using the Twitter Client to get the tweets on the home timeline
     private void populateHomeTimeline() {
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
@@ -96,12 +137,8 @@ public class TimelineActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     Log.e(TAG, "Json exception: ", e);
-
                 }
-
-
             }
-
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
                 Log.i(TAG, "onFailure: " + response, throwable);
@@ -110,6 +147,7 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
+    // Creates the action bar item using the inflater in the menu_main.xml
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -117,6 +155,7 @@ public class TimelineActivity extends AppCompatActivity {
         return true;
     }
 
+    // Handles everything when an item is selected in the action bar
     @Override
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
         if(item.getItemId() == R.id.logout) {

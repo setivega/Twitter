@@ -13,4 +13,20 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="CounterStyle" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@android:color/black</item>
+        <!--other parameters that you want to change -->
+    </style>
+
+    <style name="OverflowCounterStyle" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">#E84848</item>
+        <!--other parameters that you want to change -->
+    </style>
+
+    <style name="EditTextStyle">
+        <item name="colorControlNormal">#7C7878</item>
+        <item name="colorControlActivated">#1DA1F2</item>
+        <item name="colorControlHighlight">#E84848</item>
+    </style>
+
 </resources>
