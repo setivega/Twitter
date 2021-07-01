@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="15dp"
         android:layout_toEndOf="@+id/ivProfileImage">
 
         <TableLayout
@@ -78,12 +78,12 @@
                     android:layout_marginTop="15dp"
                     android:layout_marginEnd="9dp"
                     android:layout_marginBottom="0dp"
-                    android:ellipsize="none"
                     android:layout_weight="1"
+                    android:ellipsize="none"
+                    android:singleLine="true"
                     android:textColor="#818181"
                     android:textSize="16sp"
-                    tools:text="5h"
-                    android:singleLine="true" />
+                    tools:text="5h" />
 
             </TableRow>
 
@@ -99,7 +99,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginStart="10dp"
         android:layout_marginTop="0dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="15dp"
         android:layout_toEndOf="@+id/ivProfileImage"
         android:textColor="@android:color/black"
         android:textSize="16sp"
@@ -110,17 +110,51 @@
     <ImageView
         android:id="@+id/ivMediaImage"
         android:layout_width="wrap_content"
-        android:layout_height="300dp"
+        android:layout_height="250dp"
         android:layout_below="@+id/tvBody"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="15dp"
         android:layout_toEndOf="@+id/ivProfileImage"
         android:contentDescription="@null"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageButton
+        android:id="@+id/btnLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivMediaImage"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/ic_vector_heart_stroke" />
+
+    <ImageButton
+        android:id="@+id/btnRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivMediaImage"
+        android:layout_alignEnd="@+id/btnLike"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="110dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/ic_vector_retweet_stroke" />
+
+    <ImageButton
+        android:id="@+id/btnReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivMediaImage"
+        android:layout_alignEnd="@+id/btnRetweet"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="110dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/speech_bubble_stroke" />
+
 
 </RelativeLayout>

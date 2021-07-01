@@ -13,18 +13,25 @@ import java.util.List;
 @Parcel
 public class Tweet {
 
+    public String id;
     public String body;
     public String createdAt;
     public User user;
     public String mediaUrl;
+    public Boolean liked;
+    public Boolean retweeted;
 
     public Tweet() {}
 
     public static Tweet fromJSON(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
+        tweet.id = jsonObject.getString("id_str");
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
+        tweet.liked = jsonObject.getBoolean("favorited");
+        tweet.retweeted = jsonObject.getBoolean("retweeted");
+
         if (jsonObject.getJSONObject("entities").has("media")){
             tweet.mediaUrl = jsonObject.getJSONObject("entities").getJSONArray("media").getJSONObject(0).getString("media_url_https");
         }

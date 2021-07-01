@@ -3,6 +3,7 @@ package com.codepath.apps.restclienttemplate;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -40,6 +42,10 @@ public class TimelineActivity extends AppCompatActivity {
     private TweetsAdapter adapter;
     private FloatingActionButton btnCompose;
     private SwipeRefreshLayout swipeContainer;
+    private ImageButton btnLike;
+    private ImageButton btnRetweet;
+    private ImageButton btnReply;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +53,92 @@ public class TimelineActivity extends AppCompatActivity {
         setContentView(R.layout.activity_timeline);
 
         btnCompose = findViewById(R.id.btnCompose);
+        btnLike = findViewById(R.id.btnLike);
+        btnRetweet = findViewById(R.id.btnRetweet);
+        btnReply = findViewById(R.id.btnReply);
 
         client = TwitterApp.getRestClient(this);
 
         // Find the recycler view
         rvTweets = findViewById(R.id.rvTweets);
 
+        //Setup Like, Retweet, and Reply ClickListener
+        TweetsAdapter.OnClickListener onClickListener = new TweetsAdapter.OnClickListener() {
+            @Override
+            public void onLikeClicked(final int position) {
+                final Tweet tweet = tweets.get(position);
+                if (tweet.liked == false){
+                    client.createLike(tweet.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG,"Liked added to tweet at " + position);
+                            tweet.liked = true;
+                            adapter.notifyItemChanged(position);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.i(TAG, "onFailure: " + response, throwable);
+                        }
+                    });
+                }else {
+                    client.removeLike(tweet.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG,"Liked removed from tweet at " + position);
+                            tweet.liked = false;
+                            adapter.notifyItemChanged(position);
+                        }
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.i(TAG, "onFailure: " + response, throwable);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onRetweetClicked(final int position) {
+                final Tweet tweet = tweets.get(position);
+                if (tweet.retweeted == false){
+                    client.createRetweet(tweet.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG,"Retweet added to tweet at " + position);
+                            tweet.retweeted = true;
+                            adapter.notifyItemChanged(position);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.i(TAG, "onFailure: " + response, throwable);
+                        }
+                    });
+                }else {
+                    client.removeRetweet(tweet.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG,"Retweet removed from tweet at " + position);
+                            tweet.retweeted = false;
+                            adapter.notifyItemChanged(position);
+                        }
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.i(TAG, "onFailure: " + response, throwable);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onReplyClicked(int position) {
+
+            }
+        };
+
         // Initialize the list of tweets and adapter
         tweets = new ArrayList<>();
-        adapter = new TweetsAdapter(this, tweets);
+        adapter = new TweetsAdapter(this, tweets, onClickListener);
 
         // Config Recycler View: layout manager and adapter
         rvTweets.setLayoutManager(new LinearLayoutManager(this));
