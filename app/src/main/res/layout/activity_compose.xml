@@ -33,7 +33,7 @@
             android:autofillHints="@null"
             android:ems="10"
             android:gravity="start|top"
-            android:hint="@string/whats_happening"
+            android:hint="@string/compose"
             android:inputType="textMultiLine"
             android:minLines="5" />
     </com.google.android.material.textfield.TextInputLayout>

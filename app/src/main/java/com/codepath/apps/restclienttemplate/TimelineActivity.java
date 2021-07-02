@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -33,6 +36,9 @@ import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
 
+    // Store a member variable for the listener
+//    private EndlessRecyclerViewScrollListener scrollListener;
+
     public static final String TAG = "TimelineActivity";
     private final int REQUEST_CODE = 20;
 
@@ -42,9 +48,6 @@ public class TimelineActivity extends AppCompatActivity {
     private TweetsAdapter adapter;
     private FloatingActionButton btnCompose;
     private SwipeRefreshLayout swipeContainer;
-    private ImageButton btnLike;
-    private ImageButton btnRetweet;
-    private ImageButton btnReply;
 
 
     @Override
@@ -52,18 +55,18 @@ public class TimelineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
+        // Hooking up our views to their xml counterparts
         btnCompose = findViewById(R.id.btnCompose);
-        btnLike = findViewById(R.id.btnLike);
-        btnRetweet = findViewById(R.id.btnRetweet);
-        btnReply = findViewById(R.id.btnReply);
 
+        // Creating our client variable
         client = TwitterApp.getRestClient(this);
 
         // Find the recycler view
         rvTweets = findViewById(R.id.rvTweets);
 
-        //Setup Like, Retweet, and Reply ClickListener
+        // Setup Like, Retweet, and Reply ClickListener by accessing the interface we set up in the adapter
         TweetsAdapter.OnClickListener onClickListener = new TweetsAdapter.OnClickListener() {
+            // Handling the like button being clicked by calling the twitter client
             @Override
             public void onLikeClicked(final int position) {
                 final Tweet tweet = tweets.get(position);
@@ -96,44 +99,6 @@ public class TimelineActivity extends AppCompatActivity {
                     });
                 }
             }
-
-            @Override
-            public void onRetweetClicked(final int position) {
-                final Tweet tweet = tweets.get(position);
-                if (tweet.retweeted == false){
-                    client.createRetweet(tweet.id, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Headers headers, JSON json) {
-                            Log.i(TAG,"Retweet added to tweet at " + position);
-                            tweet.retweeted = true;
-                            adapter.notifyItemChanged(position);
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                            Log.i(TAG, "onFailure: " + response, throwable);
-                        }
-                    });
-                }else {
-                    client.removeRetweet(tweet.id, new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Headers headers, JSON json) {
-                            Log.i(TAG,"Retweet removed from tweet at " + position);
-                            tweet.retweeted = false;
-                            adapter.notifyItemChanged(position);
-                        }
-                        @Override
-                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                            Log.i(TAG, "onFailure: " + response, throwable);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onReplyClicked(int position) {
-
-            }
         };
 
         // Initialize the list of tweets and adapter
@@ -153,21 +118,25 @@ public class TimelineActivity extends AppCompatActivity {
                 fetchTimelineAsync(0);
             }
         });
+
         // Configure the refreshing colors
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
+        // Handling the compose button being clicked by initializing the compose activity with data for the reply
         btnCompose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(TimelineActivity.this, ComposeActivity.class);
+                intent.putExtra("isReply", false);
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
     }
 
+    // Getting back the timeline of tweets through a client get request when the pull down refresh is called
     public void fetchTimelineAsync(int page) {
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
@@ -205,6 +174,7 @@ public class TimelineActivity extends AppCompatActivity {
             tweets.add(0, tweet);
             // notify adapter
             adapter.notifyItemInserted(0);
+            rvTweets.scrollToPosition(0);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,16 +18,16 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 
+import org.parceler.Parcels;
 import org.w3c.dom.Text;
 
 import java.util.List;
 
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
 
+    // Setting up our interface for
     public interface OnClickListener {
         void onLikeClicked(int position);
-        void onRetweetClicked(int position);
-        void onReplyClicked(int position);
     }
 
     public static final String TAG = "TweetsAdapter";
@@ -73,7 +74,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
 
     // Define a viewholder
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView ivProfileImage;
         TextView tvName;
@@ -96,7 +97,22 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             btnLike = itemView.findViewById(R.id.btnLike);
             btnRetweet = itemView.findViewById(R.id.btnRetweet);
             btnReply = itemView.findViewById(R.id.btnReply);
+            itemView.setOnClickListener(this);
+        }
 
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            // validating position
+            if (position != RecyclerView.NO_POSITION) {
+                // Getting movie at position
+                Tweet tweet = tweets.get(position);
+                // Creating new Intent
+                Intent detail = new Intent(context, TweetDetailActivity.class);
+                // Sending the movie info to the new activity on load
+                detail.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
+                // Show the activity
+                context.startActivity(detail);
+            }
         }
 
         // Binding the movie objects to the created cells when scrolling
@@ -137,21 +153,8 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 }
             });
 
-            btnRetweet.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    clickListener.onRetweetClicked(getAdapterPosition());
-                }
-            });
-
-            btnReply.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    clickListener.onReplyClicked(getAdapterPosition());
-                }
-            });
-
             Log.i("Entity", "Media Exists " + tweet.mediaUrl);
+            Log.i("TweetID", tweet.id);
         }
 
     }

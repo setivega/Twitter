@@ -32,7 +32,9 @@ public class Tweet {
         tweet.liked = jsonObject.getBoolean("favorited");
         tweet.retweeted = jsonObject.getBoolean("retweeted");
 
+        // If statement to check if the tweet has media
         if (jsonObject.getJSONObject("entities").has("media")){
+            // Working through the nested layers of JSON to get to our media url
             tweet.mediaUrl = jsonObject.getJSONObject("entities").getJSONArray("media").getJSONObject(0).getString("media_url_https");
         }
 
